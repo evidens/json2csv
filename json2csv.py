@@ -1,0 +1,103 @@
+#!/usr/bin/env python
+
+import unicodecsv as csv
+import json
+import operator
+import os
+
+class Json2Csv(object):
+    """Process a JSON object to a CSV file"""
+
+    def __init__(self, key_map, collection=None):
+        self.rows = []
+
+        if (not type(key_map) is dict):
+            raise ValueError('You must pass in a key_map dictionary')
+        elif (len(key_map) < 1):
+            raise ValueError('You must pass in a key_map with at least one value to extract')
+        for header, key in key_map.items():
+            splits = key.split('.')
+            splits = [int(s) if s.isdigit() else s for s in splits]
+            key_map[header] = splits
+
+        self.key_map = key_map
+        self.collection = collection
+
+    def load(self, json_file):
+        self.process_each(json.load(json_file))
+
+    def process_each(self, data, collection=None):
+        """Process each item of a json-loaded dict
+        """
+        if (self.collection and data.has_key(self.collection)):
+            data = data[self.collection]
+
+        for d in data:
+            self.rows.append(self.process_row(d))
+
+    def process_row(self, item):
+        """Process a row of json data against the key map
+        """
+        row = {}
+
+        for header, keys in self.key_map.items():
+            try:
+                row[header] = reduce(operator.getitem, keys, item)
+            except KeyError:
+                row[header] = None
+
+        return row
+
+    def write_csv(self, filename='output.csv'):
+        """Write the processed rows to the given filename
+        """
+        if (len(self.rows) <= 0):
+            raise AttributeError('No rows were loaded')
+        with open(filename, 'wb+') as f:
+            writer = csv.DictWriter(f, self.key_map.keys())
+            writer.writeheader()
+            writer.writerows(self.rows)
+
+class MultiLineJson2Csv(Json2Csv):
+    def load(self, json_file):
+        self.process_each(json_file)
+
+    def process_each(self, data):
+        "Load each line of an interable collection (ie. file)"
+        for line in data:
+            d = json.loads(line)
+            if (self.collection and data.has_key(self.collection)):
+                data = data[self.collection]
+            self.rows.append(self.process_row(d))
+
+def init_parser():
+    import argparse
+    parser = argparse.ArgumentParser(description="Converts JSON to CSV")
+    parser.add_argument('json_file', type=argparse.FileType('r'), help="Path to JSON data file to load")
+    parser.add_argument('key_map', type=argparse.FileType('r'), help="File containing JSON key-mapping file to load")
+    parser.add_argument('-e', '--each-line', action="store_true", default=False, 
+                        help="Process each line of JSON file separately")
+    parser.add_argument('-o', '--output-csv', type=str, default=None,
+                        help="Path to csv file to output")
+
+    return parser
+
+if __name__ == '__main__':
+    parser = init_parser()
+    args = parser.parse_args()
+
+    key_map = json.load(args.key_map)
+    loader = None
+    if (args.each_line):
+        loader = MultiLineJson2Csv(key_map)
+    else:
+        loader = Json2Csv(key_map)
+
+    loader.load(args.json_file)
+
+    outfile = args.output_csv
+    if (outfile is None):
+        fileName, fileExtension = os.path.splitext(args.json_file.name)
+        outfile = fileName + '.csv'
+
+    loader.write_csv(filename=outfile)
