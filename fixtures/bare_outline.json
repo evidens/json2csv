@@ -1,0 +1,6 @@
+{
+    "map": [
+        ["author", "source.author"],
+        ["message", "message.original"]
+    ]
+}

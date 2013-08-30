@@ -4,35 +4,45 @@ import unicodecsv as csv
 import json
 import operator
 import os
+from collections import OrderedDict
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+
 
 class Json2Csv(object):
     """Process a JSON object to a CSV file"""
+    collection = None
 
-    def __init__(self, key_map, collection=None):
+    def __init__(self, outline):
         self.rows = []
 
-        if (not type(key_map) is dict):
-            raise ValueError('You must pass in a key_map dictionary')
-        elif (len(key_map) < 1):
-            raise ValueError('You must pass in a key_map with at least one value to extract')
-        for header, key in key_map.items():
+        if not type(outline) is dict:
+            raise ValueError('You must pass in an outline for JSON2CSV to follow')
+        elif 'map' not in outline or len(outline['map']) < 1:
+            raise ValueError('You must specify at least one value for "map"')
+
+        key_map = OrderedDict()
+        for header, key in outline['map']:
             splits = key.split('.')
             splits = [int(s) if s.isdigit() else s for s in splits]
             key_map[header] = splits
 
         self.key_map = key_map
-        self.collection = collection
+        if 'collection' in outline:
+            self.collection = outline['collection']
 
     def load(self, json_file):
         self.process_each(json.load(json_file))
 
-    def process_each(self, data, collection=None):
+    def process_each(self, data):
         """Process each item of a json-loaded dict
         """
-        if (self.collection and data.has_key(self.collection)):
+        if self.collection and self.collection in data:
             data = data[self.collection]
 
         for d in data:
+            logging.info(d)
             self.rows.append(self.process_row(d))
 
     def process_row(self, item):
@@ -43,7 +53,7 @@ class Json2Csv(object):
         for header, keys in self.key_map.items():
             try:
                 row[header] = reduce(operator.getitem, keys, item)
-            except KeyError:
+            except (KeyError, TypeError):
                 row[header] = None
 
         return row
@@ -58,17 +68,19 @@ class Json2Csv(object):
             writer.writeheader()
             writer.writerows(self.rows)
 
+
 class MultiLineJson2Csv(Json2Csv):
     def load(self, json_file):
         self.process_each(json_file)
 
-    def process_each(self, data):
-        "Load each line of an interable collection (ie. file)"
+    def process_each(self, data, collection=None):
+        """Load each line of an iterable collection (ie. file)"""
         for line in data:
             d = json.loads(line)
-            if (self.collection and data.has_key(self.collection)):
+            if self.collection in data:
                 data = data[self.collection]
             self.rows.append(self.process_row(d))
+
 
 def init_parser():
     import argparse
@@ -88,7 +100,7 @@ if __name__ == '__main__':
 
     key_map = json.load(args.key_map)
     loader = None
-    if (args.each_line):
+    if args.each_line:
         loader = MultiLineJson2Csv(key_map)
     else:
         loader = Json2Csv(key_map)
@@ -96,7 +108,7 @@ if __name__ == '__main__':
     loader.load(args.json_file)
 
     outfile = args.output_csv
-    if (outfile is None):
+    if outfile is None:
         fileName, fileExtension = os.path.splitext(args.json_file.name)
         outfile = fileName + '.csv'
 
