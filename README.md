@@ -4,7 +4,7 @@ A convert to extract nested JSON data to CSV files
 
 ## Installation
 
-    git clone https://github.com/beyondwords/json2csv.git
+    git clone https://github.com/evidens/json2csv.git
     cd json2csv
     pip install -r requirements.txt
 
