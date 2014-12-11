@@ -1,6 +1,8 @@
 # JSON2CSV
 
-A convert to extract nested JSON data to CSV files
+A converter to extract nested JSON data to CSV files.
+
+Created specifically to convert multi-line Mongo query results to a single CSV (since data nerds like CSV).
 
 ## Installation
 
