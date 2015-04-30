@@ -1,0 +1,21 @@
+{
+  "map": [
+    {"header": "autor"},
+    {"header": "data_protocolo"},
+    {"header": "data_publicacao_dpc"},
+    {"header": "descricao"},
+    {"header": "proposicao"},
+    {
+      "collection": "fases",
+      "map": [
+        {"header": "acao"},
+        {"header": "data_envio"},
+        {"header": "data_recebimento"},
+        {"header": "despacho"},
+        {"header": "nome"},
+        {"header": "setor"}
+      ]
+    }
+  ],
+  "collection": "nodes"
+}
