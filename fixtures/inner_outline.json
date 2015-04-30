@@ -1,0 +1,21 @@
+{
+    "map": [
+        ["autor"],
+        ["data_protocolo"],
+        ["data_publicacao_dpc"],
+        ["descricao"],
+        ["proposicao"],
+        ["$inner_repeat$", {
+            "collection": "fases",
+            "map": [
+                "acao",
+                "data_envio",
+                "data_recebimento",
+                "despacho",
+                "nome",
+                "setor"
+            ]
+        }]
+    ],
+    "collection": "nodes"
+}

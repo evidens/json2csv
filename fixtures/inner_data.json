@@ -1,0 +1,27 @@
+[
+  {
+    "autor": "Some autor",
+    "data_protocolo": "26/02/1953",
+    "data_publicacao_dpc": "26/02/1953",
+    "descricao": "Description",
+    "proposicao": "PL 2/1953",
+    "fases": [
+      {
+        "acao": "Prosseguir",
+        "data_envio": "11/09/1953 00:00:00",
+        "data_recebimento": "11/09/1953 00:00:00",
+        "despacho": "Lei",
+        "nome": "Protocolo",
+        "setor": "Plenário"
+      },
+      {
+        "acao": "Prosseguir",
+        "data_envio": "",
+        "data_recebimento": "26/02/1953 00:00:00",
+        "despacho": "",
+        "nome": "Protocolo",
+        "setor": "Plenário"
+      }
+    ]
+  }
+]

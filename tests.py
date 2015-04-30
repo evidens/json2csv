@@ -19,7 +19,7 @@ class TestJson2Csv(unittest.TestCase):
         outline = {'map': [['id', '_id'], ['count', 'count']]}
         loader = Json2Csv(outline)
         test_data = json.loads('{"_id" : "Someone","count" : 1}')
-        row = loader.process_row(test_data)
+        row = loader.process_row(test_data, loader.key_map)
 
         self.assertIs(type(row), dict)
         self.assertIn('id', row.keys())
@@ -35,7 +35,7 @@ class TestJson2Csv(unittest.TestCase):
         test_data = json.loads(
             '{"source": {"author": "Someone"}, "message": {"original": "Hey!", "Revised": "Hey yo!"}}'
         )
-        row = loader.process_row(test_data)
+        row = loader.process_row(test_data, loader.key_map)
 
         self.assertIs(type(row), dict)
         self.assertIn('author', row.keys())
@@ -48,15 +48,22 @@ class TestJson2Csv(unittest.TestCase):
         """Ensure that array indices are properly handled as part of the dot notation"""
         pass
 
+    def test_process_key_map(self):
+        raw_map = [['author', 'source.author'], ['message', 'message.original']]
+        key_map = Json2Csv.process_key_map(raw_map)
+
+        self.assertEqual(key_map.keys(), ['author', 'message'])
+        self.assertEqual(key_map['author'], ['source', 'author'])
+
     def test_process_each(self):
         outline = {'map': [['id', '_id'], ['count', 'count']], 'collection': 'result'}
         loader = Json2Csv(outline)
 
         test_data = json.loads('{"result":[{"_id" : "Someone","count" : 1}]}')
-        loader.process_each(test_data)
+        rows = loader.process_each(test_data, loader.key_map, loader.collection)
 
-        self.assertEquals(len(loader.rows), 1)
-        row = loader.rows[0]
+        self.assertEquals(len(rows), 1)
+        row = rows[0]
         self.assertIs(type(row), dict)
         self.assertIn('id', row.keys())
         self.assertIn('count', row.keys())
@@ -73,7 +80,7 @@ class TestJson2Csv(unittest.TestCase):
 
         test_data = json.loads('[{"_id" : "Someone","count" : 1}, {"_id": "Another"}]')
         self.assertEquals(len(test_data), 2)
-        loader.process_each(test_data)
+        loader.load_json(test_data)
 
         self.assertEquals(len(loader.rows), 2)
         second_row = loader.rows[1]
