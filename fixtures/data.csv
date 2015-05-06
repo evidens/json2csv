@@ -1,4 +1,4 @@
-author,message
-Someone,Hey!
-Another,Howdy!
-Me too,Yo!
+author,message,category 1,category 2
+Someone,Hey!,greeting,simple
+Another,Howdy!,,
+Me too,Yo!,,

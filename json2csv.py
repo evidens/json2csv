@@ -64,7 +64,7 @@ class Json2Csv(object):
         for header, keys in key_map.items():
             try:
                 result[header] = reduce(operator.getitem, keys, row)
-            except (KeyError, TypeError):
+            except (KeyError, TypeError, IndexError):
                 result[header] = None
 
         return result

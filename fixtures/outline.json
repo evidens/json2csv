@@ -1,7 +1,9 @@
 {
   "map": [
     ["author", "source.author"],
-    ["message", "message.original"]
+    ["message", "message.original"],
+    ["category 1", "categories.0"],
+    ["category 2", "categories.1"]
   ],
   "collection": "nodes"
 }
