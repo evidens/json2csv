@@ -1,0 +1,5 @@
+{"nodes": [
+  {"this": true, "tags": ["one", "two", "three"]},
+  {"that": true, "tags": []},
+  {"theother": true}
+]}

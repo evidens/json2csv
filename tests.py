@@ -1,6 +1,7 @@
 import unittest
 import json
 from json2csv import Json2Csv, MultiLineJson2Csv
+from gen_outline import make_outline
 
 
 class TestJson2Csv(unittest.TestCase):
@@ -113,3 +114,80 @@ class TestJson2Csv(unittest.TestCase):
 
     def test_write_csv(self):
         pass
+
+
+class TestMultiLineJson2Csv(unittest.TestCase):
+
+    def test_line_delimited(self):
+        outline = {"map": [['author', 'source.author'], ['message', 'message.original']]}
+        loader = MultiLineJson2Csv(outline)
+        with open('fixtures/line_delimited.json') as f:
+            loader.load(f)
+
+        first_row = loader.rows[0]
+        self.assertEqual(first_row['author'], 'Someone')
+        second_row = loader.rows[1]
+        self.assertEqual(second_row['author'], 'Another')
+        third_row = loader.rows[2]
+        self.assertEqual(third_row['author'], 'Me too')
+
+
+class TestGenOutline(unittest.TestCase):
+
+    def test_basic(self):
+        with open('fixtures/data.json') as json_file:
+            outline = make_outline(json_file, False, 'nodes')
+            expected = {
+                'collection': 'nodes',
+                'map': [
+                    ('message_Revised', 'message.Revised'),
+                    ('message_original', 'message.original'),
+                    ('source_author', 'source.author'),
+                ]
+            }
+            self.assertEqual(outline, expected)
+
+    def test_deeply_nested(self):
+        with open('fixtures/deeply_nested.json') as json_file:
+            outline = make_outline(json_file, False, 'nodes')
+            expected = {
+                'collection': 'nodes',
+                'map': [
+                    ('one_0_two_0_three_0', 'one.0.two.0.three.0'),
+                    ('one_0_two_0_three_1', 'one.0.two.0.three.1'),
+                    ('one_0_two_0_three_2', 'one.0.two.0.three.2'),
+                    ('one_0_two_1_three_0', 'one.0.two.1.three.0'),
+                    ('one_0_two_1_three_1', 'one.0.two.1.three.1'),
+                    ('one_0_two_1_three_2', 'one.0.two.1.three.2'),
+                ]
+            }
+            self.assertEqual(outline, expected)
+
+    def test_different_keys_per_row(self):
+        "Outline should contain the union of the keys."
+        with open('fixtures/different_keys_per_row.json') as json_file:
+            outline = make_outline(json_file, False, 'nodes')
+            expected = {
+                'collection': 'nodes',
+                'map': [
+                    ('tags_0', 'tags.0'),
+                    ('tags_1', 'tags.1'),
+                    ('tags_2', 'tags.2'),
+                    ('that', 'that'),
+                    ('theother', 'theother'),
+                    ('this', 'this'),
+                ]
+            }
+            self.assertEqual(outline, expected)
+
+    def test_line_delimited(self):
+        with open('fixtures/line_delimited.json') as json_file:
+            outline = make_outline(json_file, True, None)
+            expected = {
+                'map': [
+                    ('message_Revised', 'message.Revised'),
+                    ('message_original', 'message.original'),
+                    ('source_author', 'source.author'),
+                ]
+            }
+            self.assertEqual(outline, expected)
