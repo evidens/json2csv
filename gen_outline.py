@@ -37,20 +37,20 @@ def path_join(path, sep='.'):
     return sep.join(str(k) for k in path)
 
 def key_map_to_list(key_map):
-    # We convert to strings *after* sorting to that array indices come out
+    # We convert to strings *after* sorting so that array indices come out
     # in the correct order.
     return [(path_join(k, '_'), path_join(k)) for k in sorted(key_map.keys())]
 
-def make_outline(args):
-    if args.each_line:
-        iterator = line_iter(args.json_file)
+def make_outline(json_file, each_line, collection_key):
+    if each_line:
+        iterator = line_iter(json_file)
     else:
-        iterator = coll_iter(args.json_file, args.collection)
+        iterator = coll_iter(json_file, collection_key)
 
     key_map = gather_key_map(iterator)
     outline = {'map': key_map_to_list(key_map)}
-    if args.collection:
-        outline['collection'] = args.collection
+    if collection_key:
+        outline['collection'] = collection_key
 
     return outline
 
@@ -72,7 +72,7 @@ def init_parser():
 def main():
     parser = init_parser()
     args = parser.parse_args()
-    outline = make_outline(args)
+    outline = make_outline(args.json_file, args.each_line, args.collection)
     outfile = args.output_file
     if outfile is None:
         fileName, fileExtension = os.path.splitext(args.json_file.name)
