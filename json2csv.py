@@ -13,7 +13,6 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
-
 class Json2Csv(object):
     """Process a JSON object to a CSV file"""
     collection = None
@@ -57,7 +56,7 @@ class Json2Csv(object):
         for header, keys in self.key_map.items():
             try:
                 row[header] = reduce(operator.getitem, keys, item)
-            except (KeyError, TypeError):
+            except (KeyError, IndexError, TypeError):
                 row[header] = None
 
         return row

@@ -68,17 +68,22 @@ class TestJson2Csv(unittest.TestCase):
         """Ensure a key that is not always present won't prevent data extraction
         Where the data is missing, None is returned
         """
-        outline = {'map': [['id', '_id'], ['count', 'count']]}
+        outline = {'map': [['id', '_id'], ['count', 'count'], ['tags_0', 'tags.0']]}
         loader = Json2Csv(outline)
 
-        test_data = json.loads('[{"_id" : "Someone","count" : 1}, {"_id": "Another"}]')
+        test_data = json.loads('''[
+          {"_id": "Someone","count": 1, "tags": ["super"]},
+          {"_id": "Another", "tags": []}]''')
         self.assertEquals(len(test_data), 2)
         loader.process_each(test_data)
 
         self.assertEquals(len(loader.rows), 2)
         second_row = loader.rows[1]
         self.assertEquals(second_row['id'], 'Another')
+        # works for missing dict keys
         self.assertIsNone(second_row['count'])
+        # and missing list indices
+        self.assertIsNone(second_row['tags_0'])
 
     def test_load_json(self):
         outline = {"map": [['author', 'source.author'], ['message', 'message.original']], "collection": "nodes"}
