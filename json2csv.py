@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-import unicodecsv as csv
+try:
+    import unicodecsv as csv
+except ImportError:
+    import csv
+
 import json
 import operator
 import os
@@ -77,17 +81,19 @@ class MultiLineJson2Csv(Json2Csv):
         """Load each line of an iterable collection (ie. file)"""
         for line in data:
             d = json.loads(line)
-            if self.collection in data:
-                data = data[self.collection]
+            if self.collection in d:
+                d = d[self.collection]
             self.rows.append(self.process_row(d))
 
 
 def init_parser():
     import argparse
     parser = argparse.ArgumentParser(description="Converts JSON to CSV")
-    parser.add_argument('json_file', type=argparse.FileType('r'), help="Path to JSON data file to load")
-    parser.add_argument('key_map', type=argparse.FileType('r'), help="File containing JSON key-mapping file to load")
-    parser.add_argument('-e', '--each-line', action="store_true", default=False, 
+    parser.add_argument('json_file', type=argparse.FileType('r'),
+                        help="Path to JSON data file to load")
+    parser.add_argument('key_map', type=argparse.FileType('r'),
+                        help="File containing JSON key-mapping file to load")
+    parser.add_argument('-e', '--each-line', action="store_true", default=False,
                         help="Process each line of JSON file separately")
     parser.add_argument('-o', '--output-csv', type=str, default=None,
                         help="Path to csv file to output")
