@@ -41,5 +41,13 @@ Use this outline file:
       "collection": "nodes"
     }
 
+## Generating outline files
 
+To automatically generate an outline file from a json file:
+
+    python gen_outline.py --collection nodes /path/to/the.json
+
+This will generate an outline file with the union of all keys in the json
+collection at `/path/to/the.outline.json`.  You can specify the output file
+with the `-o` option, as above.
 
