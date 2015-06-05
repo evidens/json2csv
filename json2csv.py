@@ -16,12 +16,18 @@ logging.basicConfig(level=logging.DEBUG)
 class Json2Csv(object):
     """Process a JSON object to a CSV file"""
     collection = None
+    sep_char = ', '
+    key_val_char = ': '
+    dict_sep_char = '; '
+    dict_open = '{ '
+    dict_close = ' }'
 
     def __init__(self, outline):
         self.rows = []
 
-        if not type(outline) is dict:
-            raise ValueError('You must pass in an outline for JSON2CSV to follow')
+        if not isinstance(outline, dict):
+            raise ValueError(
+                'You must pass in an outline for JSON2CSV to follow')
         elif 'map' not in outline or len(outline['map']) < 1:
             raise ValueError('You must specify at least one value for "map"')
 
@@ -61,18 +67,38 @@ class Json2Csv(object):
 
         return row
 
-    def write_csv(self, filename='output.csv'):
+    def make_strings(self):
+        str_rows = []
+        for row in self.rows:
+            str_rows.append({k: self.make_string(val)
+                             for k, val in row.items()})
+        return str_rows
+
+    def make_string(self, item):
+        if isinstance(item, list) or isinstance(item, set) or isinstance(item, tuple):
+            return self.sep_char.join([self.make_string(subitem) for subitem in item])
+        elif isinstance(item, dict):
+            return self.dict_open + self.dict_sep_char.join([self.key_val_char.join([k, self.make_string(val)]) for k, val in item.items()]) + self.dict_close
+        else:
+            return unicode(item)
+
+    def write_csv(self, filename='output.csv', make_strings=False):
         """Write the processed rows to the given filename
         """
         if (len(self.rows) <= 0):
             raise AttributeError('No rows were loaded')
+        if make_strings:
+            out = self.make_strings()
+        else:
+            out = self.rows
         with open(filename, 'wb+') as f:
             writer = csv.DictWriter(f, self.key_map.keys())
             writer.writeheader()
-            writer.writerows(self.rows)
+            writer.writerows(out)
 
 
 class MultiLineJson2Csv(Json2Csv):
+
     def load(self, json_file):
         self.process_each(json_file)
 
@@ -88,14 +114,16 @@ class MultiLineJson2Csv(Json2Csv):
 def init_parser():
     import argparse
     parser = argparse.ArgumentParser(description="Converts JSON to CSV")
-    parser.add_argument('json_file', type=argparse.FileType('r'),
-                        help="Path to JSON data file to load")
-    parser.add_argument('key_map', type=argparse.FileType('r'),
+    parser.add_argument('-i', '-j', '--json_file',
+                        type=argparse.FileType('r'), help="Path to JSON data file to load")
+    parser.add_argument('--key_map', type=argparse.FileType('r'),
                         help="File containing JSON key-mapping file to load")
     parser.add_argument('-e', '--each-line', action="store_true", default=False,
                         help="Process each line of JSON file separately")
     parser.add_argument('-o', '--output-csv', type=str, default=None,
                         help="Path to csv file to output")
+    parser.add_argument(
+        '--strings', help="Convert lists, sets, and dictionaries fully to comma-separated strings.", action="store_true", default=True)
 
     return parser
 
@@ -117,4 +145,4 @@ if __name__ == '__main__':
         fileName, fileExtension = os.path.splitext(args.json_file.name)
         outfile = fileName + '.csv'
 
-    loader.write_csv(filename=outfile)
+    loader.write_csv(filename=outfile, make_strings=args.strings)
