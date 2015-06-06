@@ -16,18 +16,17 @@ logging.basicConfig(level=logging.DEBUG)
 class Json2Csv(object):
     """Process a JSON object to a CSV file"""
     collection = None
-    sep_char = ', '
-    key_val_char = ': '
-    dict_sep_char = '; '
-    dict_open = '{ '
-    dict_close = ' }'
+    SEP_CHAR = ', '
+    KEY_VAL_CHAR = ': '
+    DICT_SEP_CHAR = '\r'
+    DICT_OPEN = ''
+    DICT_CLOSE = ''
 
     def __init__(self, outline):
         self.rows = []
 
         if not isinstance(outline, dict):
-            raise ValueError(
-                'You must pass in an outline for JSON2CSV to follow')
+            raise ValueError('You must pass in an outline for JSON2CSV to follow')
         elif 'map' not in outline or len(outline['map']) < 1:
             raise ValueError('You must specify at least one value for "map"')
 
@@ -76,9 +75,9 @@ class Json2Csv(object):
 
     def make_string(self, item):
         if isinstance(item, list) or isinstance(item, set) or isinstance(item, tuple):
-            return self.sep_char.join([self.make_string(subitem) for subitem in item])
+            return self.SEP_CHAR.join([self.make_string(subitem) for subitem in item])
         elif isinstance(item, dict):
-            return self.dict_open + self.dict_sep_char.join([self.key_val_char.join([k, self.make_string(val)]) for k, val in item.items()]) + self.dict_close
+            return self.DICT_OPEN + self.DICT_SEP_CHAR.join([self.KEY_VAL_CHAR.join([k, self.make_string(val)]) for k, val in item.items()]) + self.DICT_CLOSE
         else:
             return unicode(item)
 
@@ -98,7 +97,6 @@ class Json2Csv(object):
 
 
 class MultiLineJson2Csv(Json2Csv):
-
     def load(self, json_file):
         self.process_each(json_file)
 
@@ -114,9 +112,9 @@ class MultiLineJson2Csv(Json2Csv):
 def init_parser():
     import argparse
     parser = argparse.ArgumentParser(description="Converts JSON to CSV")
-    parser.add_argument('-i', '-j', '--json_file',
-                        type=argparse.FileType('r'), help="Path to JSON data file to load")
-    parser.add_argument('--key_map', type=argparse.FileType('r'),
+    parser.add_argument('json_file', type=argparse.FileType('r'),
+                        help="Path to JSON data file to load")
+    parser.add_argument('key_map', type=argparse.FileType('r'),
                         help="File containing JSON key-mapping file to load")
     parser.add_argument('-e', '--each-line', action="store_true", default=False,
                         help="Process each line of JSON file separately")

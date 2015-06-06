@@ -56,7 +56,7 @@ with the `-o` option, as above.
 To remove quotation marks from strings in nested data types:
 
     python json2csv.py /path/to/json_file.json /path/to/outline_file.json --strings
-    
+
 This will modify field contents such that:
 
     {
@@ -66,12 +66,11 @@ This will modify field contents such that:
         "spread": ["mustard", "mayonaise", "tampenade"]
         }
     }
-    
-Becomes:
 
-    sandwiches,toppings
-    "ham, turkey, egg salad","{ cheese: cheddar, swiss; spread: mustard, mayonaise, tampenade }"
+Is parsed into
 
+|sandwiches            |toppings                                                       |
+|:---------------------|:--------------------------------------------------------------|
+|ham, turkey, egg salad|cheese: cheddar, swiss<br>spread: mustard, mayonaise, tampenade|
 
-
-
+The class variables `SEP_CHAR`, `KEY_VAL_CHAR`, `DICT_SEP_CHAR`, `DICT_OPEN`, and `DICT_CLOSE` can be changed to modify the output formatting.
