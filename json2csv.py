@@ -16,11 +16,20 @@ logging.basicConfig(level=logging.DEBUG)
 class Json2Csv(object):
     """Process a JSON object to a CSV file"""
     collection = None
+
+    # Better for single-nested dictionaries
     SEP_CHAR = ', '
     KEY_VAL_CHAR = ': '
     DICT_SEP_CHAR = '\r'
     DICT_OPEN = ''
     DICT_CLOSE = ''
+
+    # Better for deep-nested dictionaries
+    # SEP_CHAR = ', '
+    # KEY_VAL_CHAR = ': '
+    # DICT_SEP_CHAR = '; '
+    # DICT_OPEN = '{ '
+    # DICT_CLOSE = '} '
 
     def __init__(self, outline):
         self.rows = []
