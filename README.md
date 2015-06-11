@@ -63,7 +63,7 @@ This will modify field contents such that:
       "sandwiches": ["ham", "turkey", "egg salad"],
       "toppings": {
         "cheese": ["cheddar", "swiss"],
-        "spread": ["mustard", "mayonaise", "tampenade"]
+        "spread": ["mustard", "mayonaise", "tapenade"]
         }
     }
 
@@ -71,6 +71,6 @@ Is parsed into
 
 |sandwiches            |toppings                                                       |
 |:---------------------|:--------------------------------------------------------------|
-|ham, turkey, egg salad|cheese: cheddar, swiss<br>spread: mustard, mayonaise, tampenade|
+|ham, turkey, egg salad|cheese: cheddar, swiss<br>spread: mustard, mayonaise, tapenade|
 
 The class variables `SEP_CHAR`, `KEY_VAL_CHAR`, `DICT_SEP_CHAR`, `DICT_OPEN`, and `DICT_CLOSE` can be changed to modify the output formatting. For nested dictionaries, there are settings that have been commented out that work well. 
