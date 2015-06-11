@@ -17,10 +17,24 @@ class Json2Csv(object):
     """Process a JSON object to a CSV file"""
     collection = None
 
+    # Better for single-nested dictionaries
+    SEP_CHAR = ', '
+    KEY_VAL_CHAR = ': '
+    DICT_SEP_CHAR = '\r'
+    DICT_OPEN = ''
+    DICT_CLOSE = ''
+
+    # Better for deep-nested dictionaries
+    # SEP_CHAR = ', '
+    # KEY_VAL_CHAR = ': '
+    # DICT_SEP_CHAR = '; '
+    # DICT_OPEN = '{ '
+    # DICT_CLOSE = '} '
+
     def __init__(self, outline):
         self.rows = []
 
-        if not type(outline) is dict:
+        if not isinstance(outline, dict):
             raise ValueError('You must pass in an outline for JSON2CSV to follow')
         elif 'map' not in outline or len(outline['map']) < 1:
             raise ValueError('You must specify at least one value for "map"')
@@ -61,15 +75,34 @@ class Json2Csv(object):
 
         return row
 
-    def write_csv(self, filename='output.csv'):
+    def make_strings(self):
+        str_rows = []
+        for row in self.rows:
+            str_rows.append({k: self.make_string(val)
+                             for k, val in row.items()})
+        return str_rows
+
+    def make_string(self, item):
+        if isinstance(item, list) or isinstance(item, set) or isinstance(item, tuple):
+            return self.SEP_CHAR.join([self.make_string(subitem) for subitem in item])
+        elif isinstance(item, dict):
+            return self.DICT_OPEN + self.DICT_SEP_CHAR.join([self.KEY_VAL_CHAR.join([k, self.make_string(val)]) for k, val in item.items()]) + self.DICT_CLOSE
+        else:
+            return unicode(item)
+
+    def write_csv(self, filename='output.csv', make_strings=False):
         """Write the processed rows to the given filename
         """
         if (len(self.rows) <= 0):
             raise AttributeError('No rows were loaded')
+        if make_strings:
+            out = self.make_strings()
+        else:
+            out = self.rows
         with open(filename, 'wb+') as f:
             writer = csv.DictWriter(f, self.key_map.keys())
             writer.writeheader()
-            writer.writerows(self.rows)
+            writer.writerows(out)
 
 
 class MultiLineJson2Csv(Json2Csv):
@@ -96,6 +129,8 @@ def init_parser():
                         help="Process each line of JSON file separately")
     parser.add_argument('-o', '--output-csv', type=str, default=None,
                         help="Path to csv file to output")
+    parser.add_argument(
+        '--strings', help="Convert lists, sets, and dictionaries fully to comma-separated strings.", action="store_true", default=True)
 
     return parser
 
@@ -117,4 +152,4 @@ if __name__ == '__main__':
         fileName, fileExtension = os.path.splitext(args.json_file.name)
         outfile = fileName + '.csv'
 
-    loader.write_csv(filename=outfile)
+    loader.write_csv(filename=outfile, make_strings=args.strings)
