@@ -20,6 +20,11 @@ Specify CSV file
 
     python json2csv.py /path/to/json_file.json /path/to/outline_file.json -o /some/other/file.csv
 
+For MongoDB (multiple JSON objects per file, which is non-standard JSON):
+
+    python json2csv.py --each-line /path/to/json_file.json /path/to/outline_file.json
+
+## Outline Format
 
 For this JSON file:
 
