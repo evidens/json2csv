@@ -49,18 +49,24 @@ class Json2Csv(object):
         if 'collection' in outline:
             self.collection = outline['collection']
 
-    def load(self, json_file):
-        self.process_each(json.load(json_file))
+    def iterate_json(self, json_file):
+        json_data = json.load(json_file)
 
-    def process_each(self, data):
-        """Process each item of a json-loaded dict
-        """
-        if self.collection and self.collection in data:
-            data = data[self.collection]
+        if self.collection and self.collection in json_data:
+            json_data = json_data[self.collection]
 
-        for d in data:
-            logging.info(d)
-            self.rows.append(self.process_row(d))
+        for item in json_data:
+            yield item
+
+    def transcribe(self, json_file, csv_writer, to_strings=True):
+        for item in self.iterate_json(json_file):
+            logging.info(item)
+            row = self.process_row(item)
+
+            if to_strings:
+                row = {k: self.make_string(val) for k, val in row.items()}
+
+            csv_writer.writerow(row)
 
     def process_row(self, item):
         """Process a row of json data against the key map
@@ -75,13 +81,6 @@ class Json2Csv(object):
 
         return row
 
-    def make_strings(self):
-        str_rows = []
-        for row in self.rows:
-            str_rows.append({k: self.make_string(val)
-                             for k, val in row.items()})
-        return str_rows
-
     def make_string(self, item):
         if isinstance(item, list) or isinstance(item, set) or isinstance(item, tuple):
             return self.SEP_CHAR.join([self.make_string(subitem) for subitem in item])
@@ -90,32 +89,19 @@ class Json2Csv(object):
         else:
             return unicode(item)
 
-    def write_csv(self, filename='output.csv', make_strings=False):
-        """Write the processed rows to the given filename
-        """
-        if (len(self.rows) <= 0):
-            raise AttributeError('No rows were loaded')
-        if make_strings:
-            out = self.make_strings()
-        else:
-            out = self.rows
-        with open(filename, 'wb+') as f:
-            writer = csv.DictWriter(f, self.key_map.keys())
-            writer.writeheader()
-            writer.writerows(out)
-
 
 class MultiLineJson2Csv(Json2Csv):
-    def load(self, json_file):
-        self.process_each(json_file)
+    def iterate_json(self, json_file):
+        """Load each line of a Mongo-like JSON file separately"""
+        for line in json_file:
+            item = json.loads(line)
 
-    def process_each(self, data, collection=None):
-        """Load each line of an iterable collection (ie. file)"""
-        for line in data:
-            d = json.loads(line)
-            if self.collection in d:
-                d = d[self.collection]
-            self.rows.append(self.process_row(d))
+            if self.collection and self.collection in item:
+                item = item[self.collection]
+
+            yield item
+
+
 
 
 def init_parser():
@@ -135,21 +121,22 @@ def init_parser():
     return parser
 
 if __name__ == '__main__':
-    parser = init_parser()
-    args = parser.parse_args()
+    args = init_parser().parse_args()
 
     key_map = json.load(args.key_map)
-    loader = None
+
     if args.each_line:
         loader = MultiLineJson2Csv(key_map)
     else:
         loader = Json2Csv(key_map)
 
-    loader.load(args.json_file)
+    output_csv = args.output_csv
+    if output_csv is None:
+        file_name, ext = os.path.splitext(args.json_file.name)
+        output_csv = file_name + '.csv'
 
-    outfile = args.output_csv
-    if outfile is None:
-        fileName, fileExtension = os.path.splitext(args.json_file.name)
-        outfile = fileName + '.csv'
+    with open(output_csv, 'wb+') as f:
+        writer = csv.DictWriter(f, loader.key_map.keys())
+        writer.writeheader()
 
-    loader.write_csv(filename=outfile, make_strings=args.strings)
+        loader.transcribe(args.json_file, writer, args.strings)
