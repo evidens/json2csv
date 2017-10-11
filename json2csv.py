@@ -90,7 +90,7 @@ class Json2Csv(object):
         else:
             return unicode(item)
 
-    def write_csv(self, filename='output.csv', make_strings=False):
+    def write_csv(self, filename='output.csv', make_strings=False, delimiter=','):
         """Write the processed rows to the given filename
         """
         if (len(self.rows) <= 0):
@@ -100,7 +100,7 @@ class Json2Csv(object):
         else:
             out = self.rows
         with open(filename, 'wb+') as f:
-            writer = csv.DictWriter(f, self.key_map.keys())
+            writer = csv.DictWriter(f, self.key_map.keys(), delimiter=delimiter)
             writer.writeheader()
             writer.writerows(out)
 
@@ -131,6 +131,8 @@ def init_parser():
                         help="Path to csv file to output")
     parser.add_argument(
         '--strings', help="Convert lists, sets, and dictionaries fully to comma-separated strings.", action="store_true", default=True)
+    parser.add_argument('--csv-delimiter', type=str, default=',',
+                        help="Delimiter for csv output")
 
     return parser
 
@@ -152,4 +154,4 @@ if __name__ == '__main__':
         fileName, fileExtension = os.path.splitext(args.json_file.name)
         outfile = fileName + '.csv'
 
-    loader.write_csv(filename=outfile, make_strings=args.strings)
+    loader.write_csv(filename=outfile, make_strings=args.strings, delimiter=args.csv_delimiter)
