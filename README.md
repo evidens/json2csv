@@ -24,6 +24,10 @@ For MongoDB (multiple JSON objects per file, which is non-standard JSON):
 
     python json2csv.py --each-line /path/to/json_file.json /path/to/outline_file.json
 
+For custom CSV delimiter output:
+
+    python json2csv.py /path/to/json_file.json /path/to/outline_file.json --csv-delimiter ';'
+
 ## Outline Format
 
 For this JSON file:
