@@ -1,16 +1,16 @@
 {
   "map": [
     [
+      "message_original",
+      "message.original"
+    ],
+    [
       "source_author",
       "source.author"
     ],
     [
       "message_Revised",
       "message.Revised"
-    ],
-    [
-      "message_original",
-      "message.original"
     ]
   ],
   "collection": "nodes"
