@@ -140,9 +140,9 @@ class TestGenOutline(unittest.TestCase):
             expected = {
                 'collection': 'nodes',
                 'map': [
-                    ('source_author', 'source.author'),
-                    ('message_original', 'message.original'),
                     ('message_Revised', 'message.Revised'),
+                    ('message_original', 'message.original'),
+                    ('source_author', 'source.author'),
                 ]
             }
             self.assertEqual(outline, expected)
@@ -170,12 +170,12 @@ class TestGenOutline(unittest.TestCase):
             expected = {
                 'collection': 'nodes',
                 'map': [
-                    ('this', 'this'),
                     ('tags_0', 'tags.0'),
                     ('tags_1', 'tags.1'),
                     ('tags_2', 'tags.2'),
                     ('that', 'that'),
                     ('theother', 'theother'),
+                    ('this', 'this'),
                 ]
             }
             self.assertEqual(outline, expected)
@@ -185,10 +185,9 @@ class TestGenOutline(unittest.TestCase):
             outline = make_outline(json_file, True, None)
             expected = {
                 'map': [
-                    ('source_author', 'source.author'),
-                    ('message_original', 'message.original'),
                     ('message_Revised', 'message.Revised'),
+                    ('message_original', 'message.original'),
+                    ('source_author', 'source.author'),
                 ]
             }
             self.assertEqual(outline, expected)
-

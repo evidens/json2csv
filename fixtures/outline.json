@@ -1,9 +1,6 @@
 {
+  "collection": "nodes",
   "map": [
-    [
-      "source_author",
-      "source.author"
-    ],
     [
       "message_Revised",
       "message.Revised"
@@ -11,7 +8,10 @@
     [
       "message_original",
       "message.original"
+    ],
+    [
+      "source_author",
+      "source.author"
     ]
-  ],
-  "collection": "nodes"
+  ]
 }

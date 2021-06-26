@@ -1,18 +1,5 @@
 {
-  "collection": "nodes",
   "map": [
-    [
-      "that",
-      "that"
-    ],
-    [
-      "tags_2",
-      "tags.2"
-    ],
-    [
-      "theother",
-      "theother"
-    ],
     [
       "this",
       "this"
@@ -24,6 +11,19 @@
     [
       "tags_1",
       "tags.1"
+    ],
+    [
+      "tags_2",
+      "tags.2"
+    ],
+    [
+      "that",
+      "that"
+    ],
+    [
+      "theother",
+      "theother"
     ]
-  ]
+  ],
+  "collection": "nodes"
 }
