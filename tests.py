@@ -26,8 +26,8 @@ class TestJson2Csv(unittest.TestCase):
         self.assertIn('id', row.keys())
         self.assertIn('count', row.keys())
 
-        self.assertEquals(row['id'], 'Someone')
-        self.assertEquals(row['count'], 1)
+        self.assertEqual(row['id'], 'Someone')
+        self.assertEqual(row['count'], 1)
 
     def test_process_row_nested_data(self):
         """Ensure that nested keys (with . notation) are processed"""
@@ -42,8 +42,8 @@ class TestJson2Csv(unittest.TestCase):
         self.assertIn('author', row.keys())
         self.assertIn('message', row.keys())
 
-        self.assertEquals(row['author'], 'Someone')
-        self.assertEquals(row['message'], 'Hey!')
+        self.assertEqual(row['author'], 'Someone')
+        self.assertEqual(row['message'], 'Hey!')
 
     def test_process_row_array_index(self):
         """Ensure that array indices are properly handled as part of the dot notation"""
@@ -56,14 +56,14 @@ class TestJson2Csv(unittest.TestCase):
         test_data = json.loads('{"result":[{"_id" : "Someone","count" : 1}]}')
         loader.process_each(test_data)
 
-        self.assertEquals(len(loader.rows), 1)
+        self.assertEqual(len(loader.rows), 1)
         row = loader.rows[0]
         self.assertIs(type(row), dict)
         self.assertIn('id', row.keys())
         self.assertIn('count', row.keys())
 
-        self.assertEquals(row['id'], 'Someone')
-        self.assertEquals(row['count'], 1)
+        self.assertEqual(row['id'], 'Someone')
+        self.assertEqual(row['count'], 1)
 
     def test_process_each_optional_key(self):
         """Ensure a key that is not always present won't prevent data extraction
@@ -75,12 +75,12 @@ class TestJson2Csv(unittest.TestCase):
         test_data = json.loads('''[
           {"_id": "Someone","count": 1, "tags": ["super"]},
           {"_id": "Another", "tags": []}]''')
-        self.assertEquals(len(test_data), 2)
+        self.assertEqual(len(test_data), 2)
         loader.process_each(test_data)
 
-        self.assertEquals(len(loader.rows), 2)
+        self.assertEqual(len(loader.rows), 2)
         second_row = loader.rows[1]
-        self.assertEquals(second_row['id'], 'Another')
+        self.assertEqual(second_row['id'], 'Another')
         # works for missing dict keys
         self.assertIsNone(second_row['count'])
         # and missing list indices

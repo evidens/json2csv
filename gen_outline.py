@@ -6,7 +6,7 @@ import os, os.path
 def key_paths(d):
     def helper(path, x):
         if isinstance(x, dict):
-            for k, v in x.iteritems():
+            for k, v in x.items():
                 for ret in helper(path + [k], v):
                     yield ret
         elif isinstance(x, list):
@@ -40,6 +40,8 @@ def key_map_to_list(key_map):
     # We convert to strings *after* sorting so that array indices come out
     # in the correct order.
     return [(path_join(k, '_'), path_join(k)) for k in sorted(key_map.keys())]
+    # to get keys in the order defined in json ,not doing any sort
+    # return [(path_join(k, '_'), path_join(k)) for k in key_map.keys()]
 
 def make_outline(json_file, each_line, collection_key):
     if each_line:
@@ -77,7 +79,7 @@ def main():
     if outfile is None:
         fileName, fileExtension = os.path.splitext(args.json_file.name)
         outfile = fileName + '.outline.json'
-
+#sort the key , this will make sure that the output file will always have the same order of fields 
     with open(outfile, 'w') as f:
         json.dump(outline, f, indent=2, sort_keys=True)
 

@@ -1,0 +1,37 @@
+{
+  "map": [
+    [
+      "name",
+      "name"
+    ],
+    [
+      "binomial name",
+      "binomial name"
+    ],
+    [
+      "major_producers_0",
+      "major_producers.0"
+    ],
+    [
+      "major_producers_1",
+      "major_producers.1"
+    ],
+    [
+      "major_producers_2",
+      "major_producers.2"
+    ],
+    [
+      "nutrition_carbohydrates",
+      "nutrition.carbohydrates"
+    ],
+    [
+      "nutrition_fat",
+      "nutrition.fat"
+    ],
+    [
+      "nutrition_protein",
+      "nutrition.protein"
+    ]
+  ],
+  "collection": "fruit"
+}
