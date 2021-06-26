@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 
-try:
-    import unicodecsv as csv
-except ImportError:
-    import csv
-
+#python3 is by default unicode
+import csv
 import json
 import operator
 import os
 from collections import OrderedDict
 import logging
+import argparse
+#reduce is part of functools for py3
+import functools as ft
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -59,7 +59,7 @@ class Json2Csv(object):
             data = data[self.collection]
 
         for d in data:
-            logging.info(d)
+            #logging.info(d)
             self.rows.append(self.process_row(d))
 
     def process_row(self, item):
@@ -69,7 +69,7 @@ class Json2Csv(object):
 
         for header, keys in self.key_map.items():
             try:
-                row[header] = reduce(operator.getitem, keys, item)
+                row[header] = ft.reduce(operator.getitem, keys, item)
             except (KeyError, IndexError, TypeError):
                 row[header] = None
 
@@ -88,7 +88,7 @@ class Json2Csv(object):
         elif isinstance(item, dict):
             return self.DICT_OPEN + self.DICT_SEP_CHAR.join([self.KEY_VAL_CHAR.join([k, self.make_string(val)]) for k, val in item.items()]) + self.DICT_CLOSE
         else:
-            return unicode(item)
+            return item
 
     def write_csv(self, filename='output.csv', make_strings=False):
         """Write the processed rows to the given filename
@@ -99,8 +99,9 @@ class Json2Csv(object):
             out = self.make_strings()
         else:
             out = self.rows
-        with open(filename, 'wb+') as f:
-            writer = csv.DictWriter(f, self.key_map.keys())
+        #opening with write mode only and specifying unix dilect to quote all fields    
+        with open(filename, 'w') as f:
+            writer = csv.DictWriter(f, self.key_map.keys(), dialect='unix')
             writer.writeheader()
             writer.writerows(out)
 
@@ -119,7 +120,6 @@ class MultiLineJson2Csv(Json2Csv):
 
 
 def init_parser():
-    import argparse
     parser = argparse.ArgumentParser(description="Converts JSON to CSV")
     parser.add_argument('json_file', type=argparse.FileType('r'),
                         help="Path to JSON data file to load")
@@ -153,3 +153,4 @@ if __name__ == '__main__':
         outfile = fileName + '.csv'
 
     loader.write_csv(filename=outfile, make_strings=args.strings)
+
